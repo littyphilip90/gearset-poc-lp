@@ -1,0 +1,542 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="ant-sf-build-installer" default="usage" xmlns:if="ant:if" xmlns:unless="ant:unless">
+
+	<property environment="env" />
+
+	<property name="dir.home" value="${env.HOME}"         if:set="env.HOME" />
+	<property name="dir.home" value="${env.USERPROFILE}"  if:set="env.USERPROFILE" />
+
+	<property name="tooling.commandLineCredsSet" value="true" if:set="tooling.username" />
+	<property name="tooling.commandLineCredsSet" value="true" if:set="tooling.password" />
+
+	<property file="${dir.home}/mptooling.properties" />
+	<property file="install.properties" />
+	<property file="${dir.toolingBase}/version.properties" />
+
+	<property name="tooling.installerLogLevel"            value="1" />
+	<property name="tooling.defaultInstallVersion"        value="2.1.x" />
+	<property name="tooling.baseUrl"                      value="https://tooling.makepositive.com" />
+	<property name="tooling.path"                         value="tooling" />
+	<property name="tooling.disableSignatureVerification" value="false" />
+	<property name="tooling.updateCheckInterval"          value="14400" />
+	<property name="tooling.forceInstall"                 value="false" />
+
+	<property name="tooling.username" value="${env.MP_TOOLING_USERNAME}" if:set="env.MP_TOOLING_USERNAME" />
+	<property name="tooling.password" value="${env.MP_TOOLING_PASSWORD}" if:set="env.MP_TOOLING_PASSWORD" />
+
+	<macrodef name="checkInstallDirectoryName">
+		<attribute name="directory" />
+		<sequential>
+			<local name="isDirectoryAlphanumeric" />
+
+			<condition property="isDirectoryAlphanumeric">
+				<matches pattern="^[a-zA-Z0-9-]+$" string="@{directory}" />
+			</condition>
+
+			<fail unless="${isDirectoryAlphanumeric}">
+				Tooling install directory must be alphanumeric and a subdirectory of the current working directory
+			</fail>
+		</sequential>
+	</macrodef>
+
+	<macrodef name="checkInstallDirectoryDoesNotExist">
+		<attribute name="directory" />
+		<sequential>
+			<local name="installDirectoryExists" />
+
+			<condition property="installDirectoryExists">
+				<and>
+					<available         file="@{directory}"                    type="dir"  />
+					<not>
+						<and>
+							<available file="@{directory}/ant"                type="dir"  />
+							<available file="@{directory}/default.properties" type="file" />
+						</and>
+					</not>
+				</and>
+			</condition>
+
+			<fail if="${installDirectoryExists}">
+				Selected install directory already exists, remove directory or select a different install location
+			</fail>
+		</sequential>
+	</macrodef>
+
+	<macrodef name="insecureInstallationWarning">
+		<sequential>
+			<echo level="error" />
+			<echo level="error" />
+			<echo level="error">!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!</echo>
+			<echo level="error">!! WARNING: Property tooling.disableSignatureVerification should never be TRUE, contact your build manager immediately. !!</echo>
+			<echo level="error">!!          This property will be permanently removed from the next version.                                            !!</echo>
+			<echo level="error">!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!</echo>
+			<echo level="error" />
+			<echo level="error" />
+		</sequential>
+	</macrodef>
+
+	<macrodef name="setFileExistsProperties">
+		<sequential>
+			<available 
+				file 		= "install.properties"
+				property 	= "tooling.installPropertiesExists" />
+
+			<available 
+				file 		= ".git"
+				property 	= "tooling.isGitRepo"
+				type        = "dir" />
+
+			<available 
+				file 		= ".gitignore"
+				property 	= "tooling.gitIgnoreExists" />
+
+			<condition property="tooling.createGitIgnore">
+				<and>
+					<isset property="tooling.isGitRepo" />
+					<not>
+						<isset property="tooling.gitIgnoreExists" />
+					</not>
+				</and>
+			</condition>
+		</sequential>
+	</macrodef>
+
+	<macrodef name="installerSetup">
+		<sequential>
+			<echo>=========================================</echo>
+			<echo>Configure Tooling Installation...</echo>
+			<echo>=========================================</echo>
+
+			<echo />
+			<echo>The following prompts will guide you through installation of the tooling.</echo>
+			<echo />
+			<echo>Suggested defaults will be presented in [square brackets], press return to accept default value.</echo>
+			<echo />
+
+			<echo>-----------------------------------------</echo>
+			<echo />
+			<echo>Where should the tooling be installed?</echo>
+			<echo />
+			<echo>This must be a subdirectory of the current working directory (alphanumeric with no spaces).</echo>
+			<echo />
+			<echo>The recommended install location is 'tooling'.</echo>
+			<echo />
+
+			<input 
+				message      = "Install directory:" 
+				addproperty  = "dir.toolingBase" 
+				defaultvalue = "tooling"
+				unless:set   = "dir.toolingBase" />
+
+			<checkInstallDirectoryName 
+				directory    = "${dir.toolingBase}" />
+
+			<checkInstallDirectoryDoesNotExist
+				directory    = "${dir.toolingBase}" />
+
+			<echo>-----------------------------------------</echo>
+			<echo />
+			<echo>Which version of the tooling should be installed?</echo>
+			<echo />
+			<echo>The version can be a 'fixed' version or 'tagged' version.</echo>
+			<echo />
+			<echo>Examples:</echo>
+			<echo>Fixed '2.0.36' - will install version 2.0.36 and not receive any automatic updates</echo>
+			<echo>Tagged '2.0.x' - will install the latest version of version 2.0 and receive automatic patch updates</echo>
+			<echo>Tagged '2.x.x' - will install the latest version of version 2 and receive automatic minor and patch updates</echo>
+			<echo />
+			<echo>Note - x.x.x is not supported</echo>
+			<echo />
+			<echo>The current recommended install version is '${tooling.defaultInstallVersion}'.</echo>
+			<echo />
+
+			<input 
+				message      = "Tooling version:" 
+				addproperty  = "tooling.version" 
+				defaultvalue = "${tooling.defaultInstallVersion}"
+				unless:set   = "tooling.version" />
+
+			<propertyfile file="install.properties">
+				<entry key="dir.toolingBase"                       value="${dir.toolingBase}" />
+				<entry key="tooling.version"                       value="${tooling.version}" />
+			</propertyfile>
+		</sequential>
+	</macrodef>
+
+	<macrodef name="gitIgnoreSetup">
+		<sequential>
+			<!-- ant init will create a more complete one but this will stop tooling accidentally
+			being checked in before that is run -->
+			<echo level="info">Create a temporary .gitignore file...</echo>
+			<echo file=".gitignore">${dir.toolingBase}/*
+public.pem
+public.pem.base64
+signature
+signature.sha256
+tooling.zip</echo>
+		</sequential>
+	</macrodef>
+
+	<macrodef name="credentialPrompt">
+		<sequential>
+			<echo>=========================================</echo>
+			<echo>Configure MP Tooling Credentials...</echo>
+			<echo>=========================================</echo>
+			<echo />
+			<echo>Credentials are required to download and install the makepositive DevOps tooling.</echo>
+			<echo />
+			<echo>Do not enter your Salesforce credentials!</echo>
+			<echo />
+			<echo>Do you know your tooling credentials?</echo>
+			<echo />
+			<echo>If not, MP staff can go here to generate a set - https://makepositive.my.salesforce.com/apex/mpTooling</echo>
+			<echo />
+			<echo>External users should contact makepositive for a set of client credentials.</echo>
+			<echo />
+
+			<input message="Tooling Username:" addproperty="tooling.username"/>
+
+			<input message="Tooling Password:" addproperty="tooling.password">
+				<handler type="secure" />
+			</input>
+		</sequential>
+	</macrodef>
+
+	<macrodef name="saveGlobalProperties">
+		<sequential>
+			<condition property="tooling.uploadGlobalPropertiesFile">
+				<or>
+					<isset property="tooling.commandLineCredsSet" />
+					<isset property="tooling.credentialPrompt" />
+				</or>
+			</condition>
+
+			<propertyfile file="${dir.home}/mptooling.properties" if:true="${tooling.uploadGlobalPropertiesFile}">
+				<entry key="tooling.username" value="${tooling.username}" />
+				<entry key="tooling.password" value="${tooling.password}" />
+			</propertyfile>
+		</sequential>
+	</macrodef>
+
+	<macrodef name="setVersionProperties">
+		<sequential>
+			<condition property="tooling.isToolingInstalled">
+				<isset property="version.installed" />
+			</condition>
+
+			<condition property="tooling.isAutoUpdatingVersion">
+				<matches pattern=".*x$" string="${tooling.version}"/>
+			</condition>
+
+			<property name="tooling.installedVersion" value="${version.installed}" />
+
+			<condition property="tooling.getLatestAvailableVersion">
+				<or>
+					<istrue value="${tooling.forceInstall}" />
+					<istrue value="${tooling.isAutoUpdatingVersion}" />
+					<not>
+						<istrue value="${tooling.isToolingInstalled}" />
+					</not>
+					<not>
+						<equals 
+							arg1 = "${tooling.version}" 
+							arg2 = "${tooling.installedVersion}" />
+					</not>
+				</or>
+			</condition>
+
+			<get 
+				if:true 	= "${tooling.getLatestAvailableVersion}"
+				src 		= "${tooling.baseUrl}/${tooling.path}/version-${tooling.version}.txt"
+				username	= "${tooling.username}"
+				password	= "${tooling.password}" 
+				dest 		= "available-version.txt"
+				quiet 		= "true" />
+
+			<loadfile 
+				if:true 	= "${tooling.getLatestAvailableVersion}"
+				property 	= "tooling.availableVersion" 
+				srcFile		= "available-version.txt" />
+
+			<delete
+				if:true		= "${tooling.getLatestAvailableVersion}"
+				file 		= "available-version.txt" />
+
+			<condition property="tooling.isToolingUpToDate">
+				<and>
+					<not>
+						<istrue value="${tooling.forceInstall}" />
+					</not>
+					<or>
+						<and>
+							<istrue value="${tooling.isToolingInstalled}" />
+							<equals 
+								arg1 = "${tooling.version}" 
+								arg2 = "${tooling.installedVersion}" />
+						</and>
+						<equals 
+							arg1 	= "${tooling.availableVersion}" 
+							arg2 	= "${tooling.installedVersion}" />
+					</or>
+				</and>
+			</condition>
+		</sequential>
+	</macrodef>
+
+	<macrodef name="getVersionInfo">
+		<sequential>
+			<echo>=========================================</echo>
+			<echo>Tooling Version Info</echo>
+			<echo>=========================================</echo>
+			<echo>Requested Version: ${tooling.version}</echo>
+			<echo if:true="${tooling.isToolingInstalled}">Installed Version: ${tooling.installedVersion}</echo>
+			<echo if:true="${tooling.getLatestAvailableVersion}">Available Version: ${tooling.availableVersion}</echo>
+			<echo>-----------------------------------------</echo>
+			<echo if:true="${tooling.isToolingUpToDate}">Up to date!</echo>
+			<echo unless:true="${tooling.isToolingUpToDate}">Update required!</echo>
+		</sequential>
+	</macrodef>
+
+	<macrodef name="installTooling">
+		<sequential>
+			<echo>=========================================</echo>
+			<echo>Installing Tooling...</echo>
+			<echo>=========================================</echo>
+			<echo level="info">Username: ${tooling.username}</echo>
+			<echo level="info">Fetching tooling ${tooling.availableVersion}...</echo>
+
+			<get 
+				src 		= "${tooling.baseUrl}/${tooling.path}/${tooling.availableVersion}.zip"
+				username	= "${tooling.username}"
+				password	= "${tooling.password}"  
+				dest 		= "tooling.zip"
+				quiet 		= "true" />
+
+			<verifyToolingFileSignature
+				unless:true = "${tooling.disableSignatureVerification}" />
+
+			<echo level="info">Removing previous version of tooling...</echo>
+			<delete 
+				dir 		= "${dir.toolingBase}"
+				quiet 		= "true" />
+
+			<echo level="info">Unpacking tooling...</echo>
+			<unzip 
+				src 		= "tooling.zip" 
+				dest 		= "${dir.toolingBase}" />
+
+			<echo level="info">Granting execute permissions to custom actions...</echo>
+			<chmod 
+				dir         = "${dir.toolingBase}/scripts/custom-actions"
+				includes    = "**/*.sh"
+				perm        = "+x" />
+
+			<selfUpdate />
+
+			<propertyfile file="${dir.toolingBase}/version.properties">
+				<entry key="version.installed" value="${tooling.availableVersion}" />
+			</propertyfile>
+
+			<echo level="info">Cleaning up install files...</echo>
+			<delete 
+				file 		= "tooling.zip"
+				quiet 		= "true" />
+		</sequential>
+	</macrodef>
+
+	<macrodef name="verifyToolingFileSignature">
+		<sequential>
+			<installerSingleLineTo64CharMultiLine
+				singleLine        = "LS0tLS1CRUdJTiBQVUJMSUMgS0VZLS0tLS0KTUlJQ0lqQU5CZ2txaGtpRzl3MEJBUUVGQUFPQ0FnOEFNSUlDQ2dLQ0FnRUFxZE8ybWFoYnNGQTB4RmNEeURoYQo3SEZ0bHBmd2xvK3RFYlZ4WWhkUHNjWlFUd2xsTGlFQU9GNVBEWkFpNk1hTVVqRlR0ZzB4ZnBnN2gxU0lsYjBPCkNyUHZRdzZmR2h5OXIyTG5ZOWNjb1RYYVJHKzlhK2xzQXdhekJqNXhOR25QU3Bqd05QQmQ3R0tJRFV3ZEJHL0EKUzA2RkdFR1JmVXJ0bVpST05Rd0FZWmxNbDgveFgrZitzOTkrZno0cmxrMzMvM0QxQU5UekFaakNBbHEwck1aMwpBTGM2L2w3YStEY0l1NFFTa3JqSGJzcmhMRnhvQVZiU0lxajlOTm5vaFhieE81QXhtL3RyaXo5Y2NFT0ZIQ085ClR0SVpLS2Evb1VhR3NFQlN5V0V4UjUzUHRNMDE4SXZxSTFLNkpYbmRjeDU2ckc5T1NHOWxuUVYwb3U4WmJEa0cKNWNsRkhTb2tKVFdORmZuLysxSmlvOTQrOWVndkdUZGI3Znp5OWtLN0RYSUg1VVNoS2xva0FZNnRDa2NRcFhIWQo2M3Z4c1JacGprSVVPRjJUOTg0TU5YYnJQYjkrTzJNT1ZUNlQrNnhBZXlzM2tpcVllbmxPdGp5Ti9FMkcwTWVZCnFNVEVGbVFOYlYvRXdlVkZiQ0FlMVhPakFqZG9VWTYvMDBPa1VZams1U1JiVmxGc0oyWTdqb1hpWXJ3M3I3ZSsKV2dMS2hib00yMnVMU0xBR0FsMDRVUGNtUFRJZmpFTG5zdWRRN2NCR0FrOXd6Zk00OTNJL3JNQlpTcVBEVlgxMAptUThVMGF5Tjh1aGpiKytxaXpUWXF6RjN3Y0Yzbm93N0h4LzhMMVpLcVJycHl2OHJuNlFZaENJYWJ0SStzMGZjCm1tTlgzTm90Zys1bUFZRTNFVm5obHJzQ0F3RUFBUT09Ci0tLS0tRU5EIFBVQkxJQyBLRVktLS0tLQo="
+				multiLineProperty = "tooling.multiLinePublicKey" />
+
+			<echo file="public.pem.base64">${tooling.multiLinePublicKey}</echo>
+
+			<get 
+				src 		= "${tooling.baseUrl}/${tooling.path}/${tooling.availableVersion}.sha256.signed"
+				username	= "${tooling.username}"
+				password	= "${tooling.password}"  
+				dest 		= "signature"
+				quiet 		= "true" />
+
+			<verifySignature 
+				publicKey   = "public.pem.base64" 
+				file        = "tooling.zip" 
+				signature   = "signature" />
+
+			<delete
+				file        = "signature"
+				quiet       = "true" />
+
+			<delete
+				file        = "public.pem.base64"
+				quiet       = "true" />
+		</sequential>
+	</macrodef>
+
+	<macrodef name="verifySignature">
+		<attribute name="publicKey" />
+		<attribute name="file" />
+		<attribute name="signature" />
+		<sequential>
+			<property name="file.exec.openssl" value="openssl" />
+			
+			<echo level="info" message="Verify file signature..."/>
+
+			<exec executable="${file.exec.openssl}" failonerror="true" logError="true">
+				<arg line="base64 -d -in @{signature} -out signature.sha256" />
+			</exec>
+
+			<exec executable="${file.exec.openssl}" failonerror="true" logError="true">
+				<arg line="base64 -d -in @{publicKey} -out public.pem" />
+			</exec>
+
+			<exec executable="${file.exec.openssl}" failonerror="true" logError="true">
+				<arg line="dgst -sha256 -verify public.pem -signature signature.sha256 @{file}" />
+			</exec>
+
+			<delete file="public.pem" quiet="true" />
+
+			<delete file="signature.sha256" quiet="true" />
+		</sequential>
+	</macrodef>
+
+	<macrodef name="selfUpdate">
+		<sequential>
+			<echo level="info">Updating installer...</echo>
+			<copy
+				file 		= "${dir.toolingBase}/installer/build.xml"
+				tofile 		= "build.xml"
+				overwrite 	= "true" />
+		</sequential>
+	</macrodef>
+
+	<macrodef name="installOrUpdateTooling">
+		<sequential>
+
+			<condition property="tooling.credentialPrompt">
+				<or>
+					<not>
+						<isset property="tooling.username" />
+					</not>
+					<not>
+						<isset property="tooling.password" />
+					</not>
+				</or>
+			</condition>
+
+			<checkInstallDirectoryName 
+				directory   = "${dir.toolingBase}" />
+
+			<credentialPrompt    if:set="tooling.credentialPrompt" />
+			<setVersionProperties />
+			<getVersionInfo />
+			<installTooling      unless:true="${tooling.isToolingUpToDate}" />
+			<saveGlobalProperties />
+
+			<propertyfile file="${dir.toolingBase}/version.properties">
+				<entry key="version.lastCheck" value="${tooling.currentTimestamp}" />
+				<entry key="version.lastCheckVersionTag" value="${tooling.version}" />
+			</propertyfile>
+		</sequential>
+	</macrodef>
+
+	<macrodef name="installation">
+		<sequential>
+			<setFileExistsProperties />
+			<installerSetup unless:true="${tooling.installPropertiesExists}" />
+			<gitIgnoreSetup if:true="${tooling.createGitIgnore}" />
+
+			<installerUnixTimestamp property="tooling.currentTimestamp" />
+
+			<installerPropertyExp 
+				property    = "tooling.isUpdateCheckRequired" 
+				value       = "'${version.lastCheckVersionTag}' != '${tooling.version}' || (isNaN(parseInt('${version.lastCheck}')) ? 0 : parseInt('${version.lastCheck}')) + ${tooling.updateCheckInterval} &lt; ${tooling.currentTimestamp}" />
+			
+			<condition property="tooling.runUpdateChecks">
+				<or>
+					<istrue value="${tooling.isUpdateCheckRequired}" />
+					<istrue value="${tooling.forceInstall}" />
+				</or>
+			</condition>
+			
+			<installOrUpdateTooling if:true="${tooling.runUpdateChecks}" />
+
+			<property name="tooling.installationChecksComplete" value="true" />
+		</sequential>
+	</macrodef>
+
+	<scriptdef name="installerSetLogLevel" language="javascript">
+		<attribute name="level" />
+		<![CDATA[
+			var logger = project.getBuildListeners().firstElement();
+			logger.setMessageOutputLevel(attributes.get('level'));
+		]]>
+	</scriptdef>
+
+	<scriptdef name="installerUnixTimestamp" language="javascript">
+		<attribute name="property" />
+		<![CDATA[
+			project.setProperty(attributes.get('property'), Math.floor((new Date()).getTime()/1000));
+		]]>
+	</scriptdef>
+
+	<scriptdef name="installerMetricTimestamp" language="javascript">
+		<attribute name="name" />
+		<![CDATA[
+			project.setProperty('metrics.timestamps.' + attributes.get('name'), new Date().getTime());
+		]]>
+	</scriptdef>
+
+	<scriptdef name="installerPropertyExp" language="javascript">
+		<attribute name="property" />
+		<attribute name="value" />
+		<![CDATA[
+			project.setProperty(attributes.get('property'), eval(attributes.get('value')));
+		]]>
+	</scriptdef>
+
+	<scriptdef name="installerSingleLineTo64CharMultiLine" language="javascript">
+		<attribute name="singleline" />
+		<attribute name="multilineproperty" />
+		<![CDATA[
+			var remainder = attributes.get('singleline');
+			var output = '';
+
+			while (remainder.length > 0) {
+				var line = remainder.substr(0, 64);
+
+				output += line + '\n';
+
+				remainder = remainder.substr(64);
+			}
+
+			project.setProperty(attributes.get('multilineproperty'), output);
+		]]>
+	</scriptdef>
+
+	<installerSetLogLevel level="${tooling.installerLogLevel}" />
+
+	<installerMetricTimestamp name="installer-start" />
+
+	<installation unless:true="${tooling.installationChecksComplete}" />
+
+	<insecureInstallationWarning if:true="${tooling.disableSignatureVerification}" />
+
+	<target name="uninstall">
+		<echo>=========================================</echo>
+		<echo>Uninstalling Tooling...</echo>
+		<echo>=========================================</echo>
+
+		<checkInstallDirectoryName directory="${dir.toolingBase}" />
+
+		<delete dir="${dir.toolingBase}" />
+	</target>
+
+	<installerMetricTimestamp name="installer-boot-tooling" />
+
+	<installerSetLogLevel level="2" />
+
+	<import file="${dir.toolingBase}/build.xml" optional="true" />
+
+</project>
