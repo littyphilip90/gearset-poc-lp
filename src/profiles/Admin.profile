@@ -89,6 +89,7 @@
 <objectPermissions><allowCreate>true</allowCreate><allowDelete>true</allowDelete><allowEdit>true</allowEdit><allowRead>true</allowRead><modifyAllRecords>true</modifyAllRecords><object>LP_Canvas__c</object><viewAllRecords>true</viewAllRecords></objectPermissions>
 <objectPermissions><allowCreate>true</allowCreate><allowDelete>true</allowDelete><allowEdit>true</allowEdit><allowRead>true</allowRead><modifyAllRecords>true</modifyAllRecords><object>Offer__c</object><viewAllRecords>true</viewAllRecords></objectPermissions>
 <tabVisibilities><tab>LP_Canvas__c</tab><visibility>DefaultOn</visibility></tabVisibilities>
+<tabVisibilities><tab>Top_Accounts_and_Opportunities</tab><visibility>DefaultOn</visibility></tabVisibilities>
 <tabVisibilities><tab>standard-Account</tab><visibility>DefaultOn</visibility></tabVisibilities>
 <tabVisibilities><tab>standard-Contact</tab><visibility>DefaultOn</visibility></tabVisibilities>
 <userLicense>Salesforce</userLicense>
