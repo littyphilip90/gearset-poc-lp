@@ -12,6 +12,14 @@
     <isNavPersonalizationDisabled>false</isNavPersonalizationDisabled>
     <label>Solitaire Arts</label>
     <navType>Standard</navType>
+    <profileActionOverrides>
+        <actionName>Tab</actionName>
+        <content>New_Home_Page</content>
+        <formFactor>Large</formFactor>
+        <pageOrSobjectType>standard-home</pageOrSobjectType>
+        <type>Flexipage</type>
+        <profile>Admin</profile>
+    </profileActionOverrides>
     <tabs>standard-Account</tabs>
     <tabs>standard-Product2</tabs>
     <tabs>standard-Contact</tabs>
