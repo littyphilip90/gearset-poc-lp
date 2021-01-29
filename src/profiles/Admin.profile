@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Profile xmlns="http://soap.sforce.com/2006/04/metadata">
 
+<applicationVisibilities><application>Solitaire_Arts</application><default>false</default><visible>true</visible></applicationVisibilities>
 <applicationVisibilities><application>standard__AllTabSet</application><default>false</default><visible>true</visible></applicationVisibilities>
 <applicationVisibilities><application>standard__AppLauncher</application><default>false</default><visible>true</visible></applicationVisibilities>
 <applicationVisibilities><application>standard__Chatter</application><default>false</default><visible>true</visible></applicationVisibilities>
@@ -81,8 +82,13 @@
 <fieldPermissions><editable>true</editable><field>Contact.Phone</field><readable>true</readable></fieldPermissions>
 <fieldPermissions><editable>true</editable><field>Contact.ReportsToId</field><readable>true</readable></fieldPermissions>
 <fieldPermissions><editable>true</editable><field>Contact.Title</field><readable>true</readable></fieldPermissions>
+<fieldPermissions><editable>true</editable><field>LP_Canvas__c.Bootcamp_Complete__c</field><readable>true</readable></fieldPermissions>
+<fieldPermissions><editable>true</editable><field>Offer__c.Amount__c</field><readable>true</readable></fieldPermissions>
 <objectPermissions><allowCreate>true</allowCreate><allowDelete>true</allowDelete><allowEdit>true</allowEdit><allowRead>true</allowRead><modifyAllRecords>true</modifyAllRecords><object>Account</object><viewAllRecords>true</viewAllRecords></objectPermissions>
 <objectPermissions><allowCreate>true</allowCreate><allowDelete>true</allowDelete><allowEdit>true</allowEdit><allowRead>true</allowRead><modifyAllRecords>true</modifyAllRecords><object>Contact</object><viewAllRecords>true</viewAllRecords></objectPermissions>
+<objectPermissions><allowCreate>true</allowCreate><allowDelete>true</allowDelete><allowEdit>true</allowEdit><allowRead>true</allowRead><modifyAllRecords>true</modifyAllRecords><object>LP_Canvas__c</object><viewAllRecords>true</viewAllRecords></objectPermissions>
+<objectPermissions><allowCreate>true</allowCreate><allowDelete>true</allowDelete><allowEdit>true</allowEdit><allowRead>true</allowRead><modifyAllRecords>true</modifyAllRecords><object>Offer__c</object><viewAllRecords>true</viewAllRecords></objectPermissions>
+<tabVisibilities><tab>LP_Canvas__c</tab><visibility>DefaultOn</visibility></tabVisibilities>
 <tabVisibilities><tab>standard-Account</tab><visibility>DefaultOn</visibility></tabVisibilities>
 <tabVisibilities><tab>standard-Contact</tab><visibility>DefaultOn</visibility></tabVisibilities>
 <userLicense>Salesforce</userLicense>
