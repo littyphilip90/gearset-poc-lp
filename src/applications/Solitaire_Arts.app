@@ -25,6 +25,7 @@
     <tabs>standard-Contact</tabs>
     <tabs>LP_Canvas__c</tabs>
     <tabs>standard-Task</tabs>
+    <tabs>Car__c</tabs>
     <uiType>Lightning</uiType>
     <utilityBar>Solitaire_Arts_UtilityBar</utilityBar>
 </CustomApplication>

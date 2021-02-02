@@ -22,6 +22,7 @@
 <applicationVisibilities><application>standard__Service</application><default>false</default><visible>true</visible></applicationVisibilities>
 <applicationVisibilities><application>standard__ServiceConsole</application><default>false</default><visible>false</visible></applicationVisibilities>
 <applicationVisibilities><application>standard__Sites</application><default>false</default><visible>true</visible></applicationVisibilities>
+<classAccesses><apexClass>Teatime</apexClass><enabled>true</enabled></classAccesses>
 <custom>false</custom>
 <fieldPermissions><editable>true</editable><field>Account.AccountNumber</field><readable>true</readable></fieldPermissions>
 <fieldPermissions><editable>true</editable><field>Account.AccountSource</field><readable>true</readable></fieldPermissions>
@@ -58,6 +59,7 @@
 <fieldPermissions><editable>true</editable><field>Account.UpsellOpportunity__c</field><readable>true</readable></fieldPermissions>
 <fieldPermissions><editable>true</editable><field>Account.Website</field><readable>true</readable></fieldPermissions>
 <fieldPermissions><editable>false</editable><field>Account.YearStarted</field><readable>true</readable></fieldPermissions>
+<fieldPermissions><editable>true</editable><field>Car__c.Registration_Number__c</field><readable>true</readable></fieldPermissions>
 <fieldPermissions><editable>true</editable><field>Contact.AccountId</field><readable>true</readable></fieldPermissions>
 <fieldPermissions><editable>true</editable><field>Contact.AssistantName</field><readable>true</readable></fieldPermissions>
 <fieldPermissions><editable>true</editable><field>Contact.AssistantPhone</field><readable>true</readable></fieldPermissions>
@@ -85,9 +87,11 @@
 <fieldPermissions><editable>true</editable><field>LP_Canvas__c.Bootcamp_Complete__c</field><readable>true</readable></fieldPermissions>
 <fieldPermissions><editable>true</editable><field>Offer__c.Amount__c</field><readable>true</readable></fieldPermissions>
 <objectPermissions><allowCreate>true</allowCreate><allowDelete>true</allowDelete><allowEdit>true</allowEdit><allowRead>true</allowRead><modifyAllRecords>true</modifyAllRecords><object>Account</object><viewAllRecords>true</viewAllRecords></objectPermissions>
+<objectPermissions><allowCreate>true</allowCreate><allowDelete>true</allowDelete><allowEdit>true</allowEdit><allowRead>true</allowRead><modifyAllRecords>true</modifyAllRecords><object>Car__c</object><viewAllRecords>true</viewAllRecords></objectPermissions>
 <objectPermissions><allowCreate>true</allowCreate><allowDelete>true</allowDelete><allowEdit>true</allowEdit><allowRead>true</allowRead><modifyAllRecords>true</modifyAllRecords><object>Contact</object><viewAllRecords>true</viewAllRecords></objectPermissions>
 <objectPermissions><allowCreate>true</allowCreate><allowDelete>true</allowDelete><allowEdit>true</allowEdit><allowRead>true</allowRead><modifyAllRecords>true</modifyAllRecords><object>LP_Canvas__c</object><viewAllRecords>true</viewAllRecords></objectPermissions>
 <objectPermissions><allowCreate>true</allowCreate><allowDelete>true</allowDelete><allowEdit>true</allowEdit><allowRead>true</allowRead><modifyAllRecords>true</modifyAllRecords><object>Offer__c</object><viewAllRecords>true</viewAllRecords></objectPermissions>
+<tabVisibilities><tab>Car__c</tab><visibility>DefaultOn</visibility></tabVisibilities>
 <tabVisibilities><tab>LP_Canvas__c</tab><visibility>DefaultOn</visibility></tabVisibilities>
 <tabVisibilities><tab>Top_Accounts_and_Opportunities</tab><visibility>DefaultOn</visibility></tabVisibilities>
 <tabVisibilities><tab>standard-Account</tab><visibility>DefaultOn</visibility></tabVisibilities>
