@@ -27,6 +27,7 @@
     <tabs>standard-Task</tabs>
     <tabs>Car__c</tabs>
     <tabs>Watch__c</tabs>
+    <tabs>Shoe__c</tabs>
     <uiType>Lightning</uiType>
     <utilityBar>Solitaire_Arts_UtilityBar</utilityBar>
 </CustomApplication>

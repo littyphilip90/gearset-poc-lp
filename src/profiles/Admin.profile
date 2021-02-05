@@ -86,14 +86,17 @@
 <fieldPermissions><editable>true</editable><field>Contact.Title</field><readable>true</readable></fieldPermissions>
 <fieldPermissions><editable>true</editable><field>LP_Canvas__c.Bootcamp_Complete__c</field><readable>true</readable></fieldPermissions>
 <fieldPermissions><editable>true</editable><field>Offer__c.Amount__c</field><readable>true</readable></fieldPermissions>
+<fieldPermissions><editable>true</editable><field>Shoe__c.Second_hand__c</field><readable>true</readable></fieldPermissions>
 <objectPermissions><allowCreate>true</allowCreate><allowDelete>true</allowDelete><allowEdit>true</allowEdit><allowRead>true</allowRead><modifyAllRecords>true</modifyAllRecords><object>Account</object><viewAllRecords>true</viewAllRecords></objectPermissions>
 <objectPermissions><allowCreate>true</allowCreate><allowDelete>true</allowDelete><allowEdit>true</allowEdit><allowRead>true</allowRead><modifyAllRecords>true</modifyAllRecords><object>Car__c</object><viewAllRecords>true</viewAllRecords></objectPermissions>
 <objectPermissions><allowCreate>true</allowCreate><allowDelete>true</allowDelete><allowEdit>true</allowEdit><allowRead>true</allowRead><modifyAllRecords>true</modifyAllRecords><object>Contact</object><viewAllRecords>true</viewAllRecords></objectPermissions>
 <objectPermissions><allowCreate>true</allowCreate><allowDelete>true</allowDelete><allowEdit>true</allowEdit><allowRead>true</allowRead><modifyAllRecords>true</modifyAllRecords><object>LP_Canvas__c</object><viewAllRecords>true</viewAllRecords></objectPermissions>
 <objectPermissions><allowCreate>true</allowCreate><allowDelete>true</allowDelete><allowEdit>true</allowEdit><allowRead>true</allowRead><modifyAllRecords>true</modifyAllRecords><object>Offer__c</object><viewAllRecords>true</viewAllRecords></objectPermissions>
+<objectPermissions><allowCreate>true</allowCreate><allowDelete>true</allowDelete><allowEdit>true</allowEdit><allowRead>true</allowRead><modifyAllRecords>true</modifyAllRecords><object>Shoe__c</object><viewAllRecords>true</viewAllRecords></objectPermissions>
 <objectPermissions><allowCreate>true</allowCreate><allowDelete>true</allowDelete><allowEdit>true</allowEdit><allowRead>true</allowRead><modifyAllRecords>true</modifyAllRecords><object>Watch__c</object><viewAllRecords>true</viewAllRecords></objectPermissions>
 <tabVisibilities><tab>Car__c</tab><visibility>DefaultOn</visibility></tabVisibilities>
 <tabVisibilities><tab>LP_Canvas__c</tab><visibility>DefaultOn</visibility></tabVisibilities>
+<tabVisibilities><tab>Shoe__c</tab><visibility>DefaultOn</visibility></tabVisibilities>
 <tabVisibilities><tab>Top_Accounts_and_Opportunities</tab><visibility>DefaultOn</visibility></tabVisibilities>
 <tabVisibilities><tab>Watch__c</tab><visibility>DefaultOn</visibility></tabVisibilities>
 <tabVisibilities><tab>standard-Account</tab><visibility>DefaultOn</visibility></tabVisibilities>
